@@ -269,8 +269,42 @@ class CertificateGen(object):
         self.course_association_text = cert_data.get('COURSE_ASSOCIATION_TEXT', 'a course of study')
 
     def delete_certificate(self, delete_download_uuid, delete_verify_uuid):
-        # TODO remove/archive an existing certificate
-        raise NotImplementedError
+        certificates_path = os.path.join(self.dir_prefix, S3_CERT_PATH)
+        verify_path = os.path.join(self.dir_prefix, S3_VERIFY_PATH)
+        my_certs_path = os.path.join(certificates_path, delete_download_uuid)
+        my_verify_path = os.path.join(verify_path, delete_verify_uuid)
+
+        if settings.S3_UPLOAD:
+            s3_conn = boto.connect_s3(settings.CERT_AWS_ID, settings.CERT_AWS_KEY)
+            bucket = s3_conn.get_bucket(BUCKET)
+
+        for local_path in (my_certs_path, my_verify_path):
+            # reconstruct the paths used in create_and_upload()
+            # we can only reconstruct the parent directories since we don't have the filenames anymore
+            dest_path = os.path.relpath(local_path, start=self.dir_prefix)
+            publish_dest = os.path.join(settings.CERT_WEB_ROOT, dest_path)
+            if settings.S3_UPLOAD:
+                prefix = dest_path + '/'
+                bucket_list = list(bucket.list(prefix=prefix))
+                if not bucket_list:
+                    log.info('no files found for prefix {prefix}'.format(prefix=prefix))
+                for key in bucket_list:
+                    try:
+                        key.delete()
+                    except:
+                        raise
+                    else:
+                        log.info("deleted S3 file {key}".format(key=key))
+            if settings.COPY_TO_WEB_ROOT:
+                if os.path.exists(publish_dest):
+                    try:
+                        shutil.rmtree(publish_dest)
+                    except:
+                        raise
+                    else:
+                        log.info("deleted web root directory {path}".format(path=publish_dest))
+                else:
+                    log.info("web root directory {path} does not exist".format(path=publish_dest))
 
     def create_and_upload(
         self,

@@ -66,6 +66,7 @@ def parse_args(args=sys.argv[1:]):
     )
     parser.add_argument('-G', '--grade-text', help='optional grading label to apply')
     parser.add_argument('-U', '--no-upload', help='skip s3 upload step', default=False, action="store_true")
+    parser.add_argument('-W', '--no-copy-to-webroot', help='skip copying to web root step', default=False, action="store_true")
 
     return parser.parse_args()
 
@@ -96,6 +97,7 @@ def main():
         course_list = settings.CERT_DATA.keys()
 
     upload_files = not args.no_upload
+    copy_to_webroot = not args.no_copy_to_webroot
 
     for course in course_list:
         if args.name:
@@ -125,7 +127,7 @@ def main():
             if args.grade_text:
                 grade = args.grade_text
             (download_uuid, verify_uuid,
-                download_url) = cert.create_and_upload(name, upload=upload_files, copy_to_webroot=False,
+                download_url) = cert.create_and_upload(name, upload=upload_files, copy_to_webroot=copy_to_webroot,
                                                        cleanup=False, designation=title, grade=grade)
             certificate_data.append((name, course, args.long_org, args.long_course, download_url))
             gen_dir = os.path.join(cert.dir_prefix, S3_CERT_PATH, download_uuid)
