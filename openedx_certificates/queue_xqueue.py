@@ -56,6 +56,7 @@ class XQueuePullManager(object):
                 self.url), params={'queue_name': self.queue_name})
             response = json.loads(request.text)
             if response['return_code'] != 0:
+                log.critical("response: {0}".format(request.text))
                 raise Exception("Invalid return code in reply")
             length = int(response['content'])
         except (ValueError, Exception, ConnectionError, Timeout) as e:
