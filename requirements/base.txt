@@ -12,7 +12,7 @@ edx-opaque-keys==2.1.0    # via -r requirements/base.in
 gnupg==2.3.1              # via -r requirements/base.in
 idna==2.8                 # via requests
 nose==1.2.1               # via -r requirements/base.in
-path.py==2.4.1            # via -r requirements/base.in
+path.py==5.0            # via -r requirements/base.in
 pbr==5.4.5                # via stevedore
 pillow==7.1.2             # via reportlab
 psutil==5.7.0             # via gnupg
