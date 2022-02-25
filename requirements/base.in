@@ -2,7 +2,7 @@ argparse==1.2.1
 boto==2.39.0
 gnupg
 nose==1.2.1
-path.py==2.4.1
+path.py==5.0
 pyPdf2
 python-bidi
 PyYAML
